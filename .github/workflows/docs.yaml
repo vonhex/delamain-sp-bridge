@@ -18,6 +18,7 @@ concurrency:
 jobs:
   docs:
     name: build docs
+    if: github.repository == 'sunnypilot/sunnypilot'
     runs-on: ubuntu-24.04
     steps:
     - uses: commaai/timeout@v1

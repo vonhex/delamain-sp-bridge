@@ -38,6 +38,7 @@ concurrency:
 
 jobs:
   reset-and-squash:
+    if: github.repository == 'sunnypilot/sunnypilot'
     runs-on: ubuntu-latest
     if: (
       (github.event_name == 'workflow_dispatch')

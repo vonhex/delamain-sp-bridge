@@ -10,35 +10,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  strip-and-publish:
-    name: Build stripped release branch
+  publish:
+    name: Push delamain-release branch
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: recursive
           fetch-depth: 0
 
-      - name: Set git identity
-        run: |
-          git config --global user.name  "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Build and push stripped release
-        env:
-          BRANCH: delamain-release
-        run: |
-          chmod +x release/build_stripped.sh release/release_files.py
-          release/build_stripped.sh
+      - name: Push master to delamain-release
+        run: git push origin HEAD:delamain-release -f
 
       - name: Summary
         run: |
           echo "### Release published" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Branch: \`delamain-release\`" >> $GITHUB_STEP_SUMMARY
-          echo "Commit: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "Branch: \`delamain-release\`  Commit: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Install on comma 4:**" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY

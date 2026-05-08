@@ -24,6 +24,7 @@ env:
 
 jobs:
   build_release:
+    if: github.repository == 'sunnypilot/sunnypilot'
     name: build release
     runs-on: ${{
       (github.repository == 'commaai/openpilot') &&
@@ -78,6 +79,7 @@ jobs:
         release/check-submodules.sh
 
   build_mac:
+    if: github.repository == 'sunnypilot/sunnypilot'
     name: build macOS
     runs-on: ${{ ((github.repository == 'commaai/openpilot') && ((github.event_name != 'pull_request') || (github.event.pull_request.head.repo.full_name == 'commaai/openpilot'))) && 'namespace-profile-macos-8x14' || 'macos-latest' }}
     steps:
@@ -93,6 +95,7 @@ jobs:
       run: scons
 
   static_analysis:
+    if: github.repository == 'sunnypilot/sunnypilot'
     name: static analysis
     runs-on: ${{
       (github.repository == 'commaai/openpilot') &&
@@ -110,6 +113,7 @@ jobs:
       run: scripts/lint/lint.sh
 
   unit_tests:
+    if: github.repository == 'sunnypilot/sunnypilot'
     name: unit tests
     runs-on: ${{
       (github.repository == 'commaai/openpilot') &&
@@ -133,6 +137,7 @@ jobs:
         MAX_EXAMPLES=1 $PYTEST -m 'not slow'
 
   process_replay:
+    if: github.repository == 'sunnypilot/sunnypilot'
     name: process replay
     if: false  # disable process_replay for forks
     runs-on: ${{
@@ -200,6 +205,7 @@ jobs:
       run: $PYTEST selfdrive/test/process_replay/test_regen.py
 
   simulator_driving:
+    if: github.repository == 'sunnypilot/sunnypilot'
     name: simulator driving
     runs-on: ${{
       (github.repository == 'commaai/openpilot') &&
@@ -222,6 +228,7 @@ jobs:
         pytest -s tools/sim/tests/test_metadrive_bridge.py
 
   create_ui_report:
+    if: github.repository == 'sunnypilot/sunnypilot'
     name: Create UI Report
     runs-on: ${{
       (github.repository == 'commaai/openpilot') &&
