@@ -13,9 +13,11 @@ import json
 import threading
 import websocket
 import cereal.messaging as messaging
+from openpilot.common.params import Params
 from openpilot.common.realtime import Ratekeeper
 
-DELAMAIN_WS_URL = "wss://delamain.example.com/ws/sunnypilot-bridge"
+_DEFAULT_WS_URL = "wss://delamain.example.com/ws/sunnypilot-bridge"
+DELAMAIN_WS_URL = Params().get("DelamainWsUrl", encoding='utf-8') or _DEFAULT_WS_URL
 TELEMETRY_HZ    = 2   # telemetry updates per second
 CLIENT_ID       = "sunnypilot-bridge"
 
