@@ -6,73 +6,75 @@ on:
 jobs:
   test-discourse-post:
     runs-on: ubuntu-latest
+    # Skip entire job if Discourse is not configured for this repo
+    if: vars.DISCOURSE_URL != '' && secrets.DISCOURSE_API_KEY != ''
     steps:
       - uses: actions/checkout@v4
 
-      - name: Post test message to Discourse
+      - name: Post test message to existing topic
+        # Only runs when DISCOURSE_UPDATES_TOPIC_ID is set
+        if: vars.DISCOURSE_UPDATES_TOPIC_ID != ''
         uses: ./.github/workflows/post-to-discourse
         with:
           discourse-url: ${{ vars.DISCOURSE_URL }}
           api-key: ${{ secrets.DISCOURSE_API_KEY }}
-          api-username: ${{ secrets.DISCOURSE_API_USERNAME }}
+          api-username: ${{ secrets.DISCOURSE_API_USERNAME || 'system' }}
           topic-id: ${{ vars.DISCOURSE_UPDATES_TOPIC_ID }}
           message: |
-            ## 🧪 Test Post from GitHub Actions
-            
+            ## Test Post from GitHub Actions
+
             **This is a test post to verify Discourse integration**
-            
+
             - **Workflow**: ${{ github.workflow }}
             - **Run Number**: #${{ github.run_number }}
             - **Branch**: `${{ github.ref_name }}`
             - **Commit**: ${{ github.sha }}
             - **Actor**: @${{ github.actor }}
             - **Timestamp**: ${{ github.event.head_commit.timestamp }}
-            
+
             ---
-            
+
             ### Fake Build Info (for testing)
             - **Version**: 0.9.8-test
             - **Build**: #42
             - **Branch**: release-test
-            
+
             [View workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            
-            *This is an automated test message. Drive safe! 🚗💨*
-      
-      
-      - name: Create topic on Discourse
+
+            *This is an automated test message.*
+
+      - name: Create new topic on Discourse
+        # Only runs when DISCOURSE_TEST_CATEGORY_ID is set (avoids creating noise topics)
+        if: vars.DISCOURSE_TEST_CATEGORY_ID != ''
         uses: ./.github/workflows/post-to-discourse
         with:
           discourse-url: ${{ vars.DISCOURSE_URL }}
           api-key: ${{ secrets.DISCOURSE_API_KEY }}
-          api-username: ${{ secrets.DISCOURSE_API_USERNAME }}
-          #topic-id: ${{ vars.DISCOURSE_UPDATES_TOPIC_ID }}
-          category-id: 4
-          title: "This is a test of a new topic instead of a reply"
+          api-username: ${{ secrets.DISCOURSE_API_USERNAME || 'system' }}
+          category-id: ${{ vars.DISCOURSE_TEST_CATEGORY_ID }}
+          title: "Test topic from GitHub Actions - run #${{ github.run_number }}"
           message: |
-            ## 🧪 Test Post from GitHub Actions
-            
+            ## Test Post from GitHub Actions
+
             **This is a test post to verify Discourse integration**
-            
+
             - **Workflow**: ${{ github.workflow }}
             - **Run Number**: #${{ github.run_number }}
             - **Branch**: `${{ github.ref_name }}`
             - **Commit**: ${{ github.sha }}
             - **Actor**: @${{ github.actor }}
             - **Timestamp**: ${{ github.event.head_commit.timestamp }}
-            
+
             ---
-            
-            ### Fake Build Info (for testing)
-            - **Version**: 0.9.8-test
-            - **Build**: #42
-            - **Branch**: release-test
-            
+
             [View workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            
-            *This is an automated test message. Drive safe! 🚗💨*
+
+            *This is an automated test message.*
+
       - name: Display results
         if: always()
         run: |
           echo "::notice::Discourse post test completed"
-          echo "Check your Discourse topic to verify the post appeared correctly"
+          echo "DISCOURSE_URL set: ${{ vars.DISCOURSE_URL != '' }}"
+          echo "DISCOURSE_UPDATES_TOPIC_ID set: ${{ vars.DISCOURSE_UPDATES_TOPIC_ID != '' }}"
+          echo "DISCOURSE_TEST_CATEGORY_ID set: ${{ vars.DISCOURSE_TEST_CATEGORY_ID != '' }}"
