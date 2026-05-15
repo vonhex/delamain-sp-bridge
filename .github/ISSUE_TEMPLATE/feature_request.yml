@@ -1,0 +1,49 @@
+name: Feature Request
+description: Suggest an idea or improvement
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Got an idea? Describe the problem you're trying to solve — not just the solution.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the use case or gap. "I want X" is less useful than "I can't detect Y event without Z".
+      placeholder: "When driving on the highway, the bridge doesn't detect..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: What would you like to see?
+      description: Describe your proposed solution. Reference sunnypilot msgq topics if relevant.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you've considered
+      description: Any workarounds? Why don't they work?
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which area does this affect?
+      multiple: true
+      options:
+        - Vehicle event detection
+        - Telemetry streaming
+        - Road camera / VisionIPC
+        - WebSocket connection
+        - Deployment / install scripts
+        - Other
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
