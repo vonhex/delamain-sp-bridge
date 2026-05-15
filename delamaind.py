@@ -270,6 +270,7 @@ class DelamainBridge:
         self.stopped_since: float | None = None
         self.current_speed_mps   = 0.0
         self.last_gps            = None
+        self.last_lead_m: float | None = None
         self._pending_acc_engaged: dict | None = None   # deferred until cruise speed non-zero
         self._acc_speed_wait_start: float = 0.0
 
@@ -417,8 +418,10 @@ class DelamainBridge:
 
     def on_radar_state(self, rs) -> None:
         if not rs.leadOne.status:
+            self.last_lead_m = None
             return
         d = rs.leadOne.dRel
+        self.last_lead_m = d
         speed_mph = MPS_TO_MPH(self.current_speed_mps)
         if d < 8 and speed_mph > 15:
             # Suppress the less-severe alert so both don't fire back-to-back
@@ -513,6 +516,8 @@ class DelamainBridge:
             data["speed_limit_mph"] = round(self.speed_limit_mph, 1)
         if self.last_gps:
             data.update(self.last_gps)
+        if self.last_lead_m is not None:
+            data["lead_distance_m"] = round(self.last_lead_m, 1)
         self._send({"type": "vehicle_state", "data": data})
 
     # ------------------------------------------------------ websocket lifecycle
