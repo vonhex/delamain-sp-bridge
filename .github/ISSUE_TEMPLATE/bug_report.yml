@@ -1,0 +1,68 @@
+name: Bug Report
+description: Something isn't working correctly
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. The more detail you provide, the faster it gets fixed.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the bug.
+      placeholder: "When I do X, Y happens instead of Z."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce this reliably?
+      placeholder: |
+        1. Start the bridge with ...
+        2. Drive / trigger event ...
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: What should have happened?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: device
+    attributes:
+      label: Comma device
+      options:
+        - Comma 4
+        - Comma 3X
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: sp_version
+    attributes:
+      label: sunnypilot version
+      placeholder: "e.g. 0.9.7.1"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Bridge output or logcat from the Comma device.
+      render: shell
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
