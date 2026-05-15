@@ -279,8 +279,16 @@ class DelamainBridge:
         self.prev_personality = -1   # -1 = not yet known
         self.prev_alert_text  = ""
 
-        # Speed limit from liveMapDataSP
-        self.speed_limit_mph = 0.0
+        # Speed limit — blended from two sources (camera TSR preferred over map)
+        self.map_speed_limit_mph: float = 0.0   # from liveMapDataSP
+        self.car_speed_limit_mph: float = 0.0   # from carStateSP (camera/TSR, more accurate)
+
+    @property
+    def speed_limit_mph(self) -> float:
+        """Camera TSR reading when available, otherwise map data."""
+        if self.car_speed_limit_mph > 0:
+            return self.car_speed_limit_mph
+        return self.map_speed_limit_mph
 
         # Session / drive milestones
         self.session_started    = False
@@ -470,21 +478,36 @@ class DelamainBridge:
             raw   = float(lmd.speedLimit)
             if valid and raw > 0:
                 mph = MPS_TO_MPH(raw)
-                # Sanity: m/s conversion should yield 5–90 mph for normal roads.
-                # If out of range, the value is likely already in mph — use directly.
                 if 5.0 <= mph <= 90.0:
-                    self.speed_limit_mph = mph
+                    self.map_speed_limit_mph = mph
                 elif 5.0 <= raw <= 90.0:
-                    self.speed_limit_mph = raw   # already in mph
+                    self.map_speed_limit_mph = raw
                 else:
                     print(f"[MapData] unexpected speedLimit raw={raw:.2f}, skipping")
-                    self.speed_limit_mph = 0.0
-                print(f"[MapData] speedLimit raw={raw:.2f} → {self.speed_limit_mph:.1f} mph (valid={valid})")
+                    self.map_speed_limit_mph = 0.0
+                print(f"[MapData] speedLimit raw={raw:.2f} → {self.map_speed_limit_mph:.1f} mph (valid={valid})")
             else:
-                self.speed_limit_mph = 0.0
+                self.map_speed_limit_mph = 0.0
         except Exception as e:
             print(f"[MapData] read error: {e}")
-            self.speed_limit_mph = 0.0
+            self.map_speed_limit_mph = 0.0
+
+    def on_car_state_sp(self, cs_sp) -> None:
+        try:
+            raw = float(cs_sp.speedLimit)
+            if raw > 0:
+                mph = MPS_TO_MPH(raw)
+                if 5.0 <= mph <= 90.0:
+                    self.car_speed_limit_mph = mph
+                elif 5.0 <= raw <= 90.0:
+                    self.car_speed_limit_mph = raw
+                else:
+                    self.car_speed_limit_mph = 0.0
+            else:
+                self.car_speed_limit_mph = 0.0
+        except Exception as e:
+            print(f"[CarStateSP] read error: {e}")
+            self.car_speed_limit_mph = 0.0
 
     def on_device_state(self, ds) -> None:
         try:
@@ -587,6 +610,7 @@ class DelamainBridge:
 
         readers = {
             'carState':              MsgqReader('carState'),
+            'carStateSP':            MsgqReader('carStateSP'),
             'radarState':            MsgqReader('radarState'),
             'gpsLocationExternal':   MsgqReader('gpsLocationExternal'),
             'selfdriveState':        MsgqReader('selfdriveState'),
@@ -629,6 +653,8 @@ class DelamainBridge:
                             self.on_gps(event.gpsLocationExternal)
                         elif which == 'selfdriveState':
                             self.on_selfdrive_state(event.selfdriveState)
+                        elif which == 'carStateSP':
+                            self.on_car_state_sp(event.carStateSP)
                         elif which == 'liveMapDataSP':
                             self.on_map_data(event.liveMapDataSP)
                         elif which == 'deviceState':
