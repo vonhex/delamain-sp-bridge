@@ -283,13 +283,6 @@ class DelamainBridge:
         self.map_speed_limit_mph: float = 0.0   # from liveMapDataSP
         self.car_speed_limit_mph: float = 0.0   # from carStateSP (camera/TSR, more accurate)
 
-    @property
-    def speed_limit_mph(self) -> float:
-        """Camera TSR reading when available, otherwise map data."""
-        if self.car_speed_limit_mph > 0:
-            return self.car_speed_limit_mph
-        return self.map_speed_limit_mph
-
         # Session / drive milestones
         self.session_started    = False
         self.drive_start_time: float | None = None
@@ -297,6 +290,13 @@ class DelamainBridge:
 
         # Car identity loaded at startup
         self.car_info: dict = self._load_car_identity()
+
+    @property
+    def speed_limit_mph(self) -> float:
+        """Camera TSR reading when available, otherwise map data."""
+        if self.car_speed_limit_mph > 0:
+            return self.car_speed_limit_mph
+        return self.map_speed_limit_mph
 
     # ------------------------------------------------------------------ helpers
 
