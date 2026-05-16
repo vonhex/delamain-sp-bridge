@@ -593,7 +593,7 @@ class DelamainBridge:
                         on_error=on_error,
                         on_message=on_message,
                     )
-                self.ws.run_forever(ping_interval=30, ping_timeout=20)
+                self.ws.run_forever(ping_interval=None)
                 backoff = 5
             except Exception as e:
                 print(f"[Delamain] connection failed: {e}")
