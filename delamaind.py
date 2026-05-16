@@ -97,6 +97,7 @@ EVENT_COOLDOWNS = {
     "high_speed":              90,
     "acc_engaged":              5,
     "acc_disengaged":           5,
+    "acc_disengaged_lkas":      5,
     "stopped_in_traffic":     120,
     "seatbelt_off":            30,
     "sp_alert_critical":        0,   # always speak — no cooldown
@@ -395,7 +396,10 @@ class DelamainBridge:
             self._acc_speed_wait_start = time.monotonic()
         if not acc and self.prev_acc_enabled:
             self._pending_acc_engaged = None
-            self.fire("acc_disengaged", {"speed_mph": round(speed_mph)})
+            if self.sp_enabled:
+                self.fire("acc_disengaged_lkas", {"speed_mph": round(speed_mph)})
+            else:
+                self.fire("acc_disengaged", {"speed_mph": round(speed_mph)})
 
         # Flush deferred acc_engaged once cruise speed is non-zero (or after 3 s timeout)
         if self._pending_acc_engaged is not None and acc:
