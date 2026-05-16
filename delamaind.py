@@ -549,6 +549,13 @@ class DelamainBridge:
 
     # ------------------------------------------------------ websocket lifecycle
 
+    def _keepalive_thread(self) -> None:
+        """Send a JSON ping every 30 s to keep the Cloudflare tunnel alive."""
+        while True:
+            time.sleep(30)
+            if self.ws_connected:
+                self._send({"type": "ping"})
+
     def _ws_thread(self) -> None:
         backoff = 5
         while True:
@@ -609,7 +616,8 @@ class DelamainBridge:
         _wait_for_network()
         if self.car_info:
             print(f"[Delamain] car identity: {self.car_info}")
-        threading.Thread(target=self._ws_thread, daemon=True).start()
+        threading.Thread(target=self._ws_thread,    daemon=True).start()
+        threading.Thread(target=self._keepalive_thread, daemon=True).start()
         time.sleep(2)
 
         readers = {
