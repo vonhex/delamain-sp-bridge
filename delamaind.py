@@ -435,7 +435,7 @@ class DelamainBridge:
         d = rs.leadOne.dRel
         self.last_lead_m = d
         speed_mph = MPS_TO_MPH(self.current_speed_mps)
-        if d < 8 and speed_mph > 15:
+        if d < 8 and speed_mph > 25:
             # Suppress the less-severe alert so both don't fire back-to-back
             self._last_event_time["lead_car_close"] = time.monotonic()
             self.fire("lead_car_very_close", {"distance_m": round(d, 1), "speed_mph": round(speed_mph)})
